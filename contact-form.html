@@ -13,12 +13,14 @@ form{padding:4px 2px 2px;max-width:560px;margin:0 auto}
 .row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
 label.f{display:block;margin:0 0 12px}
 label.f>span{display:block;margin:0 0 5px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#0B4F55}
-input[type=text],input[type=email],input[type=tel]{display:block;width:100%;min-width:0;box-sizing:border-box;margin:0;height:50px;padding:0 14px;
+input[type=text],input[type=email],input[type=tel],select{display:block;width:100%;min-width:0;box-sizing:border-box;margin:0;height:50px;padding:0 14px;
   font-family:inherit;font-size:16px;font-weight:600;color:#0B3B40;background:rgba(255,255,255,.78);border:1px solid rgba(11,79,85,.20);
   border-radius:12px;outline:none;-webkit-appearance:none;appearance:none;box-shadow:inset 0 1px 2px rgba(11,79,85,.06);transition:border-color .15s,box-shadow .15s,background .15s}
+select{background-image:linear-gradient(45deg,transparent 50%,#0B4F55 50%),linear-gradient(135deg,#0B4F55 50%,transparent 50%);
+  background-position:calc(100% - 20px) 21px,calc(100% - 14px) 21px;background-size:6px 6px;background-repeat:no-repeat;padding-right:36px}
 input::placeholder{color:rgba(11,59,64,.40);font-weight:500}
-input:focus{border-color:#1FCB8B;background:#fff;box-shadow:0 0 0 3px rgba(31,203,139,.25)}
-.bad input[type=text],.bad input[type=email],.bad input[type=tel]{border-color:#E06363;box-shadow:0 0 0 3px rgba(224,99,99,.18)}
+input:focus,select:focus{border-color:#1FCB8B;background-color:#fff;box-shadow:0 0 0 3px rgba(31,203,139,.25)}
+.bad input[type=text],.bad input[type=email],.bad input[type=tel],.bad select{border-color:#E06363;box-shadow:0 0 0 3px rgba(224,99,99,.18)}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 .c{display:flex;gap:10px;align-items:flex-start;margin:4px 0 6px;font-size:13px;line-height:1.5;color:#3C6166;cursor:pointer}
 .c input{flex:0 0 auto;width:20px;height:20px;margin:1px 0 0;accent-color:#0B4F55;cursor:pointer}
@@ -32,6 +34,21 @@ button:hover{filter:brightness(1.04)} button:active{transform:translateY(1px)} b
 .err a{color:#8E2B2B;font-weight:800}
 .call{display:flex;align-items:center;justify-content:center;gap:8px;margin:14px 0 2px;padding-top:12px;border-top:1px solid rgba(11,79,85,.12);color:#3C6166;font-size:14px}
 .call a{color:#0B4F55;font-weight:800;text-decoration:none;font-size:15px}
+/* dark theme: the website's teal glass */
+.dark{color:#fff}
+.dark .intro{color:#9AEDD0}
+.dark label.f>span{color:rgba(255,255,255,.85)}
+.dark input[type=text],.dark input[type=email],.dark input[type=tel],.dark select{color:#fff;background-color:rgba(255,255,255,.12);border-color:rgba(255,255,255,.30);box-shadow:none}
+.dark select{background-image:linear-gradient(45deg,transparent 50%,#fff 50%),linear-gradient(135deg,#fff 50%,transparent 50%)}
+.dark select option{color:#0B3B40}
+.dark input::placeholder{color:rgba(255,255,255,.5)}
+.dark input:focus,.dark select:focus{background-color:rgba(255,255,255,.18);border-color:#1FCB8B}
+.dark input:-webkit-autofill{-webkit-text-fill-color:#fff;box-shadow:0 0 0 60px #155A5E inset;caret-color:#fff}
+.dark .c{color:rgba(255,255,255,.85)} .dark .c input{accent-color:#1FCB8B} .dark .c.bad{color:#FFD0D0}
+.dark .links a{color:#9AEDD0}
+.dark button{background:#1FCB8B;box-shadow:0 10px 26px rgba(31,203,139,.35)}
+.dark .err{background:rgba(255,90,90,.16);border-color:rgba(255,160,160,.35);color:#FFE1E1} .dark .err a{color:#fff}
+.dark .call{border-top-color:rgba(255,255,255,.14);color:rgba(255,255,255,.85)} .dark .call a{color:#fff}
 @media (max-width:290px){.row{grid-template-columns:1fr;gap:0}}
 </style></head><body>
 <form id="f" novalidate>
@@ -42,8 +59,9 @@ button:hover{filter:brightness(1.04)} button:active{transform:translateY(1px)} b
 </div>
 <label class="f"><span>Phone</span><input type="tel" name="phone" autocomplete="tel" inputmode="tel" placeholder="(801) 555-0123" maxlength="20" required></label>
 <label class="f"><span>Email</span><input type="email" name="email" autocomplete="email" inputmode="email" maxlength="150" required></label>
+<div id="xsel"></div>
 <div class="hp" aria-hidden="true"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
-<label class="c"><input type="checkbox" name="consent" required><span>I agree that Reach Higher ABA may contact me by phone call (including our automated assistant), email and text message about ABA services. Please don't share medical details here. Message and data rates may apply; message frequency varies. Reply STOP to opt out, HELP for help.</span></label>
+<label class="c"><input type="checkbox" name="consent" required><span id="consent"></span></label>
 <div class="links"><a href="https://reachhigheraba.com/privacy-policy/" target="_blank" rel="noopener">Privacy Policy</a> · <a href="https://reachhigheraba.com/terms-service/" target="_blank" rel="noopener">Terms</a></div>
 <button type="submit">Send</button>
 <div class="err" role="alert" hidden></div>
@@ -51,17 +69,29 @@ button:hover{filter:brightness(1.04)} button:active{transform:translateY(1px)} b
 </form>
 <script>
 (function () {
-  var API = 'https://app.intake2treatment.com/api/embed/lead/reach-higher-e339c5d82e', THANK_YOU = 'https://reachhigheraba.com/thank-you/';
-  var PARENTS = ['https://reachhigheraba.com', 'http://127.0.0.1:8772'];          // only these pages may show this form
+  var FORMS = {"reach-higher-e339c5d82e": {"consent": "I agree that Reach Higher ABA may contact me by phone call (including our automated assistant), email and text message about ABA services. Please don't share medical details here. Message and data rates may apply; message frequency varies. Reply STOP to opt out, HELP for help."}, "reach-higher-07f3641c38": {"consent": "I agree to be contacted by Reach Higher ABA by phone call, text message (including automated calls and texts) and email about ABA services. Msg & data rates may apply. Reply STOP to opt out."}, "reach-higher-6377e33b3b": {"consent": "I agree to be contacted by Reach Higher ABA by phone call, text message (including automated calls and texts) and email about ABA services. Msg & data rates may apply. Reply STOP to opt out."}, "reach-higher-4dc39e2b9e": {"consent": "I agree to be contacted by Reach Higher ABA by phone call, text message (including automated calls and texts) and email about ABA services. Msg & data rates may apply. Reply STOP to opt out.", "select": {"name": "extra_please_confirm_your_stat", "label": "Please confirm your state", "options": ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Connecticut", "Delaware", "District of Columbia", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming", "Outside the U.S."]}}}, DEFAULT_FORM = 'reach-higher-e339c5d82e', THANK_YOU = 'https://reachhigheraba.com/thank-you/';
+  var PARENTS = ['https://reachhigheraba.com', 'http://127.0.0.1:8772'];          // only these sites may show this form
   var cfg = {}; try { location.hash.slice(1).split('&').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) cfg[kv.slice(0, i)] = decodeURIComponent(kv.slice(i + 1)); }); } catch (e) {}
-  var parentOrigin = PARENTS.indexOf(cfg.po) >= 0 ? cfg.po : PARENTS[0];
-  var PREVIEW = cfg.preview === '1';
-  // only our own pages may show this form (blocks other sites framing it)
+  var f = document.getElementById('f');
   var anc = location.ancestorOrigins && location.ancestorOrigins.length ? location.ancestorOrigins[0] : null;
   if (window.top === window || (anc && PARENTS.indexOf(anc) < 0)) {
-    document.getElementById('f').innerHTML = '<p class="intro">To reach Reach Higher ABA, call <a href="tel:+13852008674">(385) 200-8674</a> or visit reachhigheraba.com.</p>'; return; }
+    f.innerHTML = '<p class="intro">To reach Reach Higher ABA, call <a href="tel:+13852008674">(385) 200-8674</a> or visit reachhigheraba.com.</p>'; return; }
+  var parentOrigin = PARENTS.indexOf(cfg.po) >= 0 ? cfg.po : PARENTS[0];
+  var slug = FORMS[cfg.f] ? cfg.f : DEFAULT_FORM, form = FORMS[slug];
+  var API = 'https://app.intake2treatment.com/api/embed/lead/' + slug;
+  var PREVIEW = cfg.preview === '1';
   var tags = {}; try { tags = JSON.parse(cfg.tags || '{}') || {}; } catch (e) {}
-  var f = document.getElementById('f'), err = f.querySelector('.err'), btn = f.querySelector('button');
+  if (cfg.t === 'dark') document.body.className = 'dark';
+  if (cfg.intro === '0') f.querySelector('.intro').remove();
+  if (cfg.call === '0') f.querySelector('.call').remove();
+  document.getElementById('consent').textContent = form.consent;
+  if (form.select) {
+    var s = form.select, h = '<label class="f"><span></span><select required><option value="">Select…</option></select></label>';
+    var box = document.getElementById('xsel'); box.innerHTML = h;
+    box.querySelector('span').textContent = s.label; var sel = box.querySelector('select'); sel.name = s.name;
+    s.options.forEach(function (o) { var op = document.createElement('option'); op.value = op.textContent = o; sel.appendChild(op); });
+  }
+  var err = f.querySelector('.err'), btn = f.querySelector('button');
   if (cfg.btn) btn.textContent = cfg.btn.slice(0, 40);
   function tell(msg) { try { parent.postMessage(msg, parentOrigin); } catch (e) {} }
   function size() { tell({rhForm: 'h', h: Math.ceil(f.getBoundingClientRect().bottom + window.scrollY + 6)}); }
@@ -71,6 +101,7 @@ button:hover{filter:brightness(1.04)} button:active{transform:translateY(1px)} b
   function mark(n, bad) { var w = el(n).closest('label'); if (w) w.classList.toggle('bad', bad); return bad; }
   function show(msg) { err.innerHTML = msg; err.hidden = !msg; size(); }
   f.addEventListener('input', function (e) { var w = e.target.closest('label'); if (w) w.classList.remove('bad'); });
+  f.addEventListener('change', function (e) { var w = e.target.closest('label'); if (w) w.classList.remove('bad'); });
   f.addEventListener('submit', function (e) {
     e.preventDefault(); show('');
     var bad = [], d = val('phone').replace(/\D/g, ''); if (d.length === 11 && d[0] === '1') d = d.slice(1);
@@ -78,18 +109,19 @@ button:hover{filter:brightness(1.04)} button:active{transform:translateY(1px)} b
     if (mark('lastName', !val('lastName'))) bad.push('last name');
     if (mark('phone', !(d.length === 10 && /[2-9]/.test(d[0]) && /[2-9]/.test(d[3])))) bad.push('a 10-digit phone number');
     if (mark('email', !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val('email')))) bad.push('a valid email');
+    if (form.select && mark(form.select.name, !val(form.select.name))) bad.push('your state');
     if (mark('consent', !el('consent').checked)) bad.push('the consent box');
-    if (bad.length) { show('Please add ' + bad.join(', ') + '.'); var b = f.querySelector('.bad input'); if (b) b.focus(); return; }
+    if (bad.length) { show('Please add ' + bad.join(', ') + '.'); var b = f.querySelector('.bad input, .bad select'); if (b) b.focus(); return; }
     if (val('website')) { tell({rhForm: 'done'}); return; }   // a bot filled the hidden box
     if (PREVIEW) { show('Preview only: this would go to ABA Ready, then the page would open the thank-you page. Nothing was sent.'); return; }
     btn.disabled = true; var label = btn.textContent; btn.textContent = 'Sending…';
     var adTags = {}; ['source', 'medium', 'campaign', 'term', 'content', 'gclid', 'fbclid', 'landingPath', 'referrerHost'].forEach(function (k) {
       if (typeof tags[k] === 'string' && tags[k]) adTags[k] = tags[k].slice(0, 150); });
-    // Standard web-form encoding: ABA Ready ignores a text/plain body (tested 11/24: "Blocked: incomplete"), and a JSON
-    // content type isn't allowed cross-site (no CORS). Form-encoded is accepted (tested: lead "Received").
-    var body = new URLSearchParams({firstName: val('firstName'), lastName: val('lastName'), email: val('email'), phone: d,
-                                    consent: 'true', website: '', adTags: JSON.stringify(adTags)});
-    fetch(API, {method: 'POST', mode: 'no-cors', body: body, keepalive: true})
+    // Standard web-form encoding (ABA Ready ignores text/plain; JSON isn't allowed cross-site). Tested 11/24: "Received".
+    var data = {firstName: val('firstName'), lastName: val('lastName'), email: val('email'), phone: d,
+                consent: 'true', website: '', adTags: JSON.stringify(adTags)};
+    if (form.select) data[form.select.name] = val(form.select.name);
+    fetch(API, {method: 'POST', mode: 'no-cors', body: new URLSearchParams(data), keepalive: true})
       .then(function () {
         f.reset(); tell({rhForm: 'done'});
         setTimeout(function () { try { top.location.href = THANK_YOU; } catch (e) {} }, 1500);  // if the page didn't move
