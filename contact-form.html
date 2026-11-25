@@ -85,9 +85,11 @@ button:hover{filter:brightness(1.04)} button:active{transform:translateY(1px)} b
     btn.disabled = true; var label = btn.textContent; btn.textContent = 'Sending…';
     var adTags = {}; ['source', 'medium', 'campaign', 'term', 'content', 'gclid', 'fbclid', 'landingPath', 'referrerHost'].forEach(function (k) {
       if (typeof tags[k] === 'string' && tags[k]) adTags[k] = tags[k].slice(0, 150); });
-    var body = JSON.stringify({firstName: val('firstName'), lastName: val('lastName'), email: val('email'), phone: d,
-                               consent: true, website: '', adTags: adTags});
-    fetch(API, {method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'text/plain'}, body: body, keepalive: true})
+    // Standard web-form encoding: ABA Ready ignores a text/plain body (tested 11/24: "Blocked: incomplete"), and a JSON
+    // content type isn't allowed cross-site (no CORS). Form-encoded is accepted (tested: lead "Received").
+    var body = new URLSearchParams({firstName: val('firstName'), lastName: val('lastName'), email: val('email'), phone: d,
+                                    consent: 'true', website: '', adTags: JSON.stringify(adTags)});
+    fetch(API, {method: 'POST', mode: 'no-cors', body: body, keepalive: true})
       .then(function () {
         f.reset(); tell({rhForm: 'done'});
         setTimeout(function () { try { top.location.href = THANK_YOU; } catch (e) {} }, 1500);  // if the page didn't move
